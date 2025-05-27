@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <title>맵 선택</title>
+  <link rel="stylesheet" href="/src/style.css" />
+</head>
+<body>
+  <div id="app"></div>
+  <script type="module" src="/src/main.js"></script>
+</body>
+</html>
+
+#overlay {
+  position: absolute;
+  top: 0; left: 0;
+  width: 100vw;
+  height: 100vh;
+  background-image: url('/path/to/your/background.jpg'); /* 배경 이미지 경로 */
+  background-size: cover;     /* 화면 전체에 꽉 차게 */
+  background-position: center;
+  background-repeat: no-repeat;
+
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding-top: 50px; /* 원하는 만큼 여백 조정 */
+  box-sizing: border-box;
+  color: white; /* 글자색 예시 */
+}
