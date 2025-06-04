@@ -2,29 +2,537 @@
 <html lang="ko">
 <head>
   <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>맵 선택</title>
-  <link rel="stylesheet" href="/src/style.css" />
+
+  <style>
+    html, body {
+      margin: 0;
+      padding: 0;
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+      font-family: sans-serif;
+    }
+
+    #overlay {
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      top: 0;
+      left: 0;
+      z-index: 10;
+      background-image: url('/bg.jpg');
+      background-size: cover;
+      background-position: center;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding-top: 140px;
+      box-sizing: border-box;
+    }
+
+    #overlay h1 {
+      color: white;
+      font-size: 2rem;
+      margin-bottom: 60px;
+      text-shadow: 0 0 5px black;
+    }
+
+    .map-buttons {
+      display: flex;
+      gap: 60px;
+    }
+
+    .map-box {
+      width: 180px;
+      height: 180px;
+      background-color: white;
+      border-radius: 12px;
+      cursor: pointer;
+      box-shadow: 0 4px 8px rgba(0,0,0,0.3);
+      transition: transform 0.2s;
+    }
+
+    .map-box:hover {
+      transform: scale(1.05);
+    }
+
+    #three-canvas {
+      display: block;
+      width: 100vw;
+      height: 100vh;
+    }
+  </style>
 </head>
 <body>
   <div id="app"></div>
-  <script type="module" src="/src/main.js"></script>
+  <canvas id="three-canvas"></canvas>
+
+  <!-- 디버깅용 카메라 위치 표시 //삭제예정 -->
+  <div id="debug-pos" style="
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    color: white;
+    background: rgba(0, 0, 0, 0.6);
+    padding: 6px 10px;
+    font-family: monospace;
+    font-size: 14px;
+    border-radius: 4px;
+    z-index: 1000;
+  ">x: 0.00, y: 0.00, z: 0.00</div>
+  
+  <div id="crosshair"></div> <!-- 가운데 점 -->
+    #crosshair {
+        position: fixed;
+        top: 50%;
+        left: 50%;
+        width: 6px;
+        height: 6px;
+        background: white;
+        border-radius: 50%;
+        transform: translate(-50%, -50%);
+        z-index: 20;
+        pointer-events: none;
+    }
+
+  <canvas id="three-canvas"></canvas>
+  
+  <div id="crosshair"></div> 
+
+
+  <div id="pause-menu" style="
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background: rgba(0,0,0,0.8);
+    color: white;
+    display: none;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    z-index: 10000;
+  ">
+    <h2 style="margin-bottom: 20px;">일시 정지됨</h2>
+    <button id="resume-btn" style="padding: 10px 20px; font-size: 1rem;">계속하기</button>
+    <button id="home-btn" style="padding: 10px 20px; font-size: 1rem;">홈으로</button>
+  </div>
+
+  <script type="module">
+    import * as THREE from 'three'
+    import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader'
+    import { OBJLoader } from 'three/examples/jsm/loaders/OBJLoader.js'
+    import { MTLLoader } from 'three/examples/jsm/loaders/MTLLoader.js'
+    import * as CANNON from 'https://cdn.skypack.dev/cannon-es'
+
+    // Three.js 기본 설정
+    const scene = new THREE.Scene()
+    const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000)
+    camera.position.set(0, 1.6, 5)
+
+    const renderer = new THREE.WebGLRenderer({ canvas: document.querySelector('#three-canvas') })
+    renderer.setSize(window.innerWidth, window.innerHeight)
+    renderer.setPixelRatio(window.devicePixelRatio)
+
+    const light = new THREE.HemisphereLight(0xffffff, 0x444444 ,0.005) //전체빛강도 설정시 세번째꺼 수정 -0.01이 좋은듯
+    scene.add(light)
+
+    const mtlLoader = new MTLLoader()
+
+    // DOM이 로드된 후 실행
+    document.addEventListener('DOMContentLoaded', () => {
+      // 오버레이 삽입
+      document.querySelector('#app').innerHTML = `
+        <div id="overlay">
+          <h1>원하는 맵을 고르세요</h1>
+          <div class="map-buttons">
+            <div class="map-box" id="map1"></div>
+            <div class="map-box" id="map2"></div>
+            <div class="map-box" id="map3"></div>
+          </div>
+        </div>
+      `;
+      
+      document.getElementById('resume-btn').addEventListener('click', () => { //일시정지 버튼
+        hidePauseMenu()
+      })
+
+      document.getElementById('home-btn').addEventListener('click', () => { // 홈버튼
+        if(document.pointerLockElement){
+          document.exitPointerLock().catch((e)=>{
+            console.warn("PointerLock exit failed:", e.message)
+          })
+        }
+        hidePauseMenu()
+
+        scene.traverse(obj => {
+          if(obj.isMesh && obj !== playerMesh) {
+            scene.remove(obj)
+          }
+        })
+
+        // 오버레이가 없으면 새로 만들고, 있으면 display:flex만
+        const app = document.getElementById('app')
+        showOverlay();
+      })
+
+
+      function showOverlay(){ //기존홈화면 리로드
+        const overlay = document.getElementById('overlay')
+        if(overlay){
+          overlay.style.display = 'flex'
+        } else {
+          const app = document.getElementById('app')
+          app.innerHTML += `
+            <div id="overlay">
+              <h1>원하는 맵을 고르세요</h1>
+              <div class="map-buttons">
+                <div class="map-box" id="map1"></div>
+                <div class="map-box" id="map2"></div>
+                <div class="map-box" id="map3"></div>
+              </div>
+            </div>
+          `
+          document.querySelector('#map1').addEventListener('click', () => loadMapModel(1))
+          document.querySelector('#map2').addEventListener('click', () => loadMapModel(2))
+          document.querySelector('#map3').addEventListener('click', () => loadMapModel(3))
+        }
+      }
+
+
+      function disposeModel(model) {
+        model.traverse((child) => {
+          if (child.isMesh) {
+            if (child.geometry) child.geometry.dispose();
+            if (child.material) {
+              if (Array.isArray(child.material)) {
+                child.material.forEach((mat) => mat.dispose());
+              } else {
+                child.material.dispose();
+              }
+            }
+          }
+        });
+      }
+      function clearSceneModels() {
+        scene.children.slice().forEach((obj) => {
+          if (obj !== camera && obj !== light && obj !== playerMesh) {
+            disposeModel(obj);
+            scene.remove(obj);
+          }
+        });
+      }
+
+      // 맵 선택 시 모델 로드
+      function loadMapModel(mapIndex) {
+        document.getElementById('overlay').style.display = 'none'
+
+        // crosshair 중복 생성 방지
+        if (!document.getElementById('crosshair')) {
+          const crosshair = document.createElement('div')
+          crosshair.id = 'crosshair'
+          document.body.appendChild(crosshair)
+        }
+
+        // scene 초기화
+        clearSceneModels()
+        // 포인터락 요청
+        document.body.requestPointerLock() //모델로딩
+
+
+        const loader=new GLTFLoader()
+        if(mapIndex===1){ 
+          
+          loader.load(
+            '/assets/housegltf/scene.gltf', // 또는 .gltf 경로
+            gltf=>{
+              scene.add(gltf.scene)
+              animate()
+            },
+            undefined,
+            error=>{
+              console.error('GLTF 모델 로딩 실패:', error)
+            }
+          )
+
+          // 카메라 위치 세팅
+          camera.position.set(22, 6, -8.5)
+        } else {
+          const text = document.createElement('div')
+          text.style.position = 'absolute'
+          text.style.top = '50%'
+          text.style.left = '50%'
+          text.style.transform = 'translate(-50%, -50%)'
+          text.style.fontSize = '2rem'
+          text.style.color = 'white'
+          text.style.textShadow = '0 0 5px black'
+          text.innerText = `맵 ${mapIndex}는 아직 준비되지 않았습니다.`
+          document.body.appendChild(text)
+        }
+
+
+        loader.load('/assets/flashlight/flashlight.gltf', (gltf) => {
+          flashlight = gltf.scene
+          flashlight.scale.set(0.003, 0.003, 0.003) // 크기 조절
+          flashlight.position.set(0.5, -0.5, -0.25) // 카메라 기준 위치 (손전등 위치)
+          camera.add(flashlight)
+          scene.add(camera) // 카메라 씬에 추가 (중복 방지 가능 시 생략)
+
+          // 손전등 스포트라이트
+          flashlightLight = new THREE.SpotLight(0xffffff, 2, 20, Math.PI / 8, 0.5, 2.0)
+          flashlightLight.position.set(0, 0, 0)
+          flashlight.rotation.set(0, THREE.MathUtils.degToRad(105), 0) //카메라 모델 회전
+
+          flashlightLight.target = new THREE.Object3D()
+          scene.add(flashlightLight.target)
+
+          flashlight.add(flashlightLight)
+        })
+      }
+
+      document.querySelector('#map1').addEventListener('click', () => loadMapModel(1))
+      document.querySelector('#map2').addEventListener('click', () => loadMapModel(2))
+      document.querySelector('#map3').addEventListener('click', () => loadMapModel(3))
+    })
+
+    document.addEventListener('pointerlockchange', () => {
+      if(document.pointerLockElement === document.body) {
+        document.addEventListener('mousemove', onMouseMove)
+        isPaused = false
+      } else {
+        document.removeEventListener('mousemove', onMouseMove)
+        showPauseMenu()
+      }
+    })
+
+    function onMouseMove(e) {
+      const movementX = e.movementX || 0
+      const movementY = e.movementY || 0
+
+      yaw -= movementX * 0.002
+      pitch -= movementY * 0.002
+
+      const maxPitch = Math.PI / 2 - 0.01
+      const minPitch = -Math.PI / 2 + 0.01
+      pitch = Math.max(minPitch, Math.min(maxPitch, pitch))
+
+      const direction = new THREE.Vector3(
+        Math.cos(pitch) * Math.sin(yaw),
+        Math.sin(pitch),
+        Math.cos(pitch) * Math.cos(yaw)
+      )
+      camera.lookAt(camera.position.clone().add(direction))
+    }
+    window.addEventListener('resize', () => {
+      camera.aspect = window.innerWidth / window.innerHeight
+      camera.updateProjectionMatrix()
+      renderer.setSize(window.innerWidth, window.innerHeight)
+    })
+
+
+
+    // 추가할 전역 상태
+    const moveState = {
+      forward: false,
+      backward: false,
+      left: false,
+      right: false,
+      up: false,
+      down: false
+    }
+
+    let yaw = 0 // 좌우 회전 (Y축)
+    let pitch = 0 // 상하 회전 (X축)
+    let isPaused = false //일시정지
+    let flashlight, flashlightLight;
+    let flashlightOn = true;
+    let flashlightHelper
+
+
+    // 키보드 이벤트 핸들러
+    window.addEventListener('keydown', (e) => {
+      switch(e.key.toLowerCase()) {
+        case 'w': moveState.forward = true; break
+        case 's': moveState.backward = true; break
+        case 'a': moveState.left = true; break
+        case 'd': moveState.right = true; break
+        case ' ': moveState.up = true; break
+        case 'shift': moveState.down = true; break
+      }
+      if(e.key === 'Escape') {
+        showPauseMenu()
+      }
+
+      if(e.key === 'Home') {
+        hidePauseMenu()
+      }
+    })
+
+    window.addEventListener('keyup', (e) => {
+      switch(e.key.toLowerCase()) {
+        case 'w': moveState.forward = false; break
+        case 's': moveState.backward = false; break
+        case 'a': moveState.left = false; break
+        case 'd': moveState.right = false; break
+        case ' ': moveState.up = false; break
+        case 'shift': moveState.down = false; break
+      }
+    })
+
+    const raycaster = new THREE.Raycaster()
+    const collisionDistance = 0.5 // 충돌 허용 거리
+
+    function updateCameraPosition() {
+      const speed = 0.01
+      const dir = new THREE.Vector3()
+      const right = new THREE.Vector3()
+      const up = new THREE.Vector3(0, 1, 0)
+
+      camera.getWorldDirection(dir)
+      dir.y = 0
+      dir.normalize()
+
+      right.crossVectors(dir, up).normalize()
+
+      const move = new THREE.Vector3()
+
+      if(moveState.forward) move.add(dir)
+      if(moveState.backward) move.sub(dir)
+      if(moveState.left) move.sub(right)
+      if(moveState.right) move.add(right)
+      if(moveState.up) move.y += 1
+      if(moveState.down) move.y -= 1
+
+      if(move.length() === 0) return
+
+      move.normalize().multiplyScalar(speed)
+
+      const nextPos = camera.position.clone().add(move)
+      playerMesh.position.copy(nextPos)
+
+      // Raycaster 설정
+      raycaster.set(camera.position, move.clone().normalize())
+
+      const collisionObjects = []
+      scene.traverse((obj) => {
+        if(obj.isMesh && obj !== playerMesh) collisionObjects.push(obj)
+      })
+
+      const intersects = raycaster.intersectObjects(collisionObjects, true)
+
+      
+      if(intersects.length > 0 && intersects[0].distance < collisionDistance) {
+        const collisionNormal = intersects[0].face.normal.clone()
+        intersects[0].object.localToWorld(collisionNormal)
+
+        // 이동 벡터에서 법선 성분 제거 (슬라이딩 벡터 계산)
+        const moveDir = move.clone().normalize()
+        const dot = moveDir.dot(collisionNormal)
+        const slideDir = moveDir.clone().sub(collisionNormal.clone().multiplyScalar(dot)).normalize()
+
+        // 슬라이딩 벡터 크기는 속도와 같게 유지
+        const slideMove = slideDir.multiplyScalar(speed)
+
+        // 새로운 위치 계산
+        const slideNextPos = camera.position.clone().add(slideMove)
+
+        // 슬라이딩 위치로 playerMesh 이동 (중복 이동 방지용)
+        playerMesh.position.copy(slideNextPos)
+        camera.position.copy(slideNextPos)
+      } else {
+        // 충돌 없으면 평소 이동
+        camera.position.copy(nextPos)
+        playerMesh.position.copy(nextPos)
+      }
+    }
+
+
+    // Cannon.js 물리 월드 생성 및 중력 설정
+    const world = new CANNON.World()
+    world.gravity.set(0, 0, 0)
+    
+    // 플레이어 원기둥 충돌체 생성 (Three.js 플레이어와 크기 일치) 도형
+    const playerShape = new CANNON.Cylinder(0.3, 0.3, 10, 8)
+    const playerBody = new CANNON.Body({ mass: 0 }) // 질량 0 (중력 영향 X)
+    playerBody.addShape(playerShape)
+    playerBody.position.set(camera.position.x, camera.position.y+1, camera.position.z)
+    world.addBody(playerBody)
+
+    const playerCollider = new THREE.CylinderGeometry(0.3, 0.3, 10, 8)
+    const playerMesh = new THREE.Mesh(playerCollider, new THREE.MeshBasicMaterial({ visible: false }))
+    scene.add(playerMesh)
+
+
+    function showPauseMenu() { //일시정지
+      isPaused = true
+      document.exitPointerLock()
+      document.getElementById('pause-menu').style.display = 'flex'
+    }
+
+    function hidePauseMenu() { //일시정지 해제
+      isPaused = false
+      document.body.requestPointerLock()
+      document.getElementById('pause-menu').style.display = 'none'
+    }
+
+
+    const timeStep = 1 / 60
+    let isAnimating = false;
+
+    window.addEventListener('mousedown', (e) => { //손전등 활, 비활성화
+      if (e.button === 0 && flashlightLight) { // 좌클릭 + 라이트 존재 시
+        flashlightOn = !flashlightOn
+        flashlightLight.visible = flashlightOn
+      }
+    })
+
+
+
+    // 디버깅용 카메라 위치 표시 //삭제예정
+    function updateDebugPosition() {
+      const el = document.getElementById('debug-pos')
+      const {x, y, z} = camera.position
+      el.textContent = `x: ${x.toFixed(2)}, y: ${y.toFixed(2)}, z: ${z.toFixed(2)}`
+    }
+
+
+
+    function animate() {
+      if (isAnimating) return; // 중복 방지
+      isAnimating = true;
+
+      function renderLoop() {
+        requestAnimationFrame(renderLoop);
+
+        if (isPaused) return;
+
+        world.step(timeStep);
+        playerMesh.position.copy(playerBody.position);
+        playerMesh.quaternion.copy(playerBody.quaternion);
+
+        updateCameraPosition();
+        updateDebugPosition();
+        if(flashlightLight){
+          const direction = new THREE.Vector3(0, 0, -1)
+          direction.applyQuaternion(camera.quaternion)
+
+          const offset = new THREE.Vector3(0.25, -0.25, 0) // x: 우측, y: 아래
+          offset.applyQuaternion(camera.quaternion)
+
+          direction.add(offset).normalize()
+
+          const targetPos = new THREE.Vector3().copy(camera.position).add(direction)
+          flashlightLight.target.position.copy(targetPos)
+        }
+        renderer.render(scene, camera);
+      }
+
+      renderLoop();
+    }
+
+  </script>
 </body>
 </html>
-
-#overlay {
-  position: absolute;
-  top: 0; left: 0;
-  width: 100vw;
-  height: 100vh;
-  background-image: url('/path/to/your/background.jpg'); /* 배경 이미지 경로 */
-  background-size: cover;     /* 화면 전체에 꽉 차게 */
-  background-position: center;
-  background-repeat: no-repeat;
-
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  padding-top: 50px; /* 원하는 만큼 여백 조정 */
-  box-sizing: border-box;
-  color: white; /* 글자색 예시 */
-}
