@@ -150,8 +150,8 @@
           <h1>원하는 맵을 고르세요</h1>
           <div class="map-buttons">
             <div class="map-box" id="map1"></div>
-            <div class="map-box" id="map2"></div>
-            <div class="map-box" id="map3"></div>
+            <img class="map-box" id="map2" src="/assets/img/chained_image.jpg" alt="Map 2">
+            <img class="map-box" id="map3" src="/assets/img/chained_image.jpg" alt="Map 3">
           </div>
         </div>
       `;
@@ -228,24 +228,23 @@
 
       // 맵 선택 시 모델 로드
       function loadMapModel(mapIndex) {
-        document.getElementById('overlay').style.display = 'none'
-
-        // crosshair 중복 생성 방지
-        if (!document.getElementById('crosshair')) {
-          const crosshair = document.createElement('div')
-          crosshair.id = 'crosshair'
-          document.body.appendChild(crosshair)
-        }
-
-        // scene 초기화
-        clearSceneModels()
-        // 포인터락 요청
-        document.body.requestPointerLock() //모델로딩
-
-
         const loader=new GLTFLoader()
         if(mapIndex===1){ 
           
+          document.getElementById('overlay').style.display = 'none'
+
+          // crosshair 중복 생성 방지
+          if (!document.getElementById('crosshair')) {
+            const crosshair = document.createElement('div')
+            crosshair.id = 'crosshair'
+            document.body.appendChild(crosshair)
+          }
+
+          // scene 초기화
+          clearSceneModels()
+          // 포인터락 요청
+          document.body.requestPointerLock() //모델로딩
+
           loader.load(
             '/assets/housegltf/scene.gltf', // 또는 .gltf 경로
             gltf=>{
@@ -261,16 +260,29 @@
           // 카메라 위치 세팅
           camera.position.set(22, 6, -8.5)
         } else {
-          const text = document.createElement('div')
-          text.style.position = 'absolute'
-          text.style.top = '50%'
-          text.style.left = '50%'
-          text.style.transform = 'translate(-50%, -50%)'
-          text.style.fontSize = '2rem'
-          text.style.color = 'white'
-          text.style.textShadow = '0 0 5px black'
-          text.innerText = `맵 ${mapIndex}는 아직 준비되지 않았습니다.`
-          document.body.appendChild(text)
+          const audio = new Audio('/assets/audio/not_ready.mp3');
+          audio.play();
+
+          // 안내 텍스트 표시
+          const text = document.createElement('div');
+          text.style.position = 'absolute';
+          text.style.bottom = '30px';
+          text.style.left = '50%';
+          text.style.transform = 'translateX(-50%)';
+          text.style.fontSize = '1.5rem';
+          text.style.color = 'white';
+          text.style.background = 'rgba(0, 0, 0, 0.6)';
+          text.style.padding = '10px 20px';
+          text.style.borderRadius = '10px';
+          text.style.boxShadow = '0 0 10px black';
+          text.innerText = `맵 ${mapIndex}는 아직 준비되지 않았습니다.`;
+
+          // 기존 텍스트 제거 후 다시 추가
+          const existingText = document.getElementById('map-warning');
+          if (existingText) existingText.remove();
+          text.id = 'map-warning';
+
+          document.body.appendChild(text);
         }
 
 
@@ -341,7 +353,8 @@
       left: false,
       right: false,
       up: false,
-      down: false
+      down: false,
+      run: false
     }
 
     let yaw = 0 // 좌우 회전 (Y축)
@@ -359,8 +372,9 @@
         case 's': moveState.backward = true; break
         case 'a': moveState.left = true; break
         case 'd': moveState.right = true; break
-        case ' ': moveState.up = true; break
-        case 'shift': moveState.down = true; break
+        // case ' ': moveState.up = true; break
+        // case 'shift': moveState.down = true; break
+        case 'shift': moveState.run = true; break
       }
       if(e.key === 'Escape') {
         showPauseMenu()
@@ -377,8 +391,9 @@
         case 's': moveState.backward = false; break
         case 'a': moveState.left = false; break
         case 'd': moveState.right = false; break
-        case ' ': moveState.up = false; break
-        case 'shift': moveState.down = false; break
+        // case ' ': moveState.up = false; break
+        // case 'shift': moveState.down = false; break
+        case 'shift': moveState.run = false; break
       }
     })
 
@@ -386,7 +401,9 @@
     const collisionDistance = 0.5 // 충돌 허용 거리
 
     function updateCameraPosition() {
-      const speed = 0.01
+      const baseSpeed= 0.01
+      const runSpeed=2
+      const speed = moveState.run ? baseSpeed * runSpeed : baseSpeed;
       const dir = new THREE.Vector3()
       const right = new THREE.Vector3()
       const up = new THREE.Vector3(0, 1, 0)
