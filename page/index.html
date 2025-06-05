@@ -137,7 +137,7 @@
     renderer.setSize(window.innerWidth, window.innerHeight)
     renderer.setPixelRatio(window.devicePixelRatio)
 
-    const light = new THREE.HemisphereLight(0xffffff, 0x444444 ,0.005) //전체빛강도 설정시 세번째꺼 수정 -0.01이 좋은듯
+    const light = new THREE.HemisphereLight(0xffffff, 0x444444 ,0.01) //전체빛강도 설정시 세번째꺼 수정 -0.01이 좋은듯
     scene.add(light)
 
     const mtlLoader = new MTLLoader()
@@ -224,6 +224,11 @@
             scene.remove(obj);
           }
         });
+        // flashlight 객체가 존재하면 씬에서 제거
+        if (flashlight) {
+            scene.remove(flashlight);
+            flashlight = null; // flashlight 객체 초기화
+        }
       }
 
       // 맵 선택 시 모델 로드
@@ -283,13 +288,19 @@
           text.id = 'map-warning';
 
           document.body.appendChild(text);
+
+          // 2초 후 텍스트 제거
+          setTimeout(() => {
+            const warning = document.getElementById('map-warning');
+            if (warning) warning.remove();
+          }, 2000);
         }
 
 
         loader.load('/assets/flashlight/flashlight.gltf', (gltf) => {
           flashlight = gltf.scene
           flashlight.scale.set(0.003, 0.003, 0.003) // 크기 조절
-          flashlight.position.set(0.5, -0.5, -0.25) // 카메라 기준 위치 (손전등 위치)
+          flashlight.position.set(0.3, -0.5, -0.25) // 카메라 기준 위치 (손전등 위치)
           camera.add(flashlight)
           scene.add(camera) // 카메라 씬에 추가 (중복 방지 가능 시 생략)
 
@@ -365,6 +376,50 @@
     let flashlightHelper
 
 
+
+    let lastFootstepTime = 0
+    let footstepDelay = 1000  // ms
+    let footstepIndex = 0
+    const footstepSounds = [
+    new Audio('/assets/audio/step1.mp3'),
+    new Audio('/assets/audio/step2.mp3'),
+    new Audio('/assets/audio/step3.mp3')
+  ]
+
+  function playFootstepSound() {
+    const sound = footstepSounds[footstepIndex].cloneNode()
+    sound.play().catch(err => console.warn('발소리 재생 실패:', err))
+    footstepIndex = (footstepIndex + 1) % footstepSounds.length
+  }
+
+  function isMoving() {
+    return moveState.forward || moveState.backward || moveState.left || moveState.right
+  }
+
+  function footstepLoop(currentTime) {
+    requestAnimationFrame(footstepLoop)
+
+    if (isMoving()) {
+
+      if (moveState.run) {
+      footstepDelay = 500  // 달리기 시 발소리 간격을 더 빠르게 설정
+      } else {
+        footstepDelay = 1000  // 걷기 시 발소리 간격
+      }
+      // 발소리 텀 체크
+      if (currentTime - lastFootstepTime >= footstepDelay) {
+        playFootstepSound()
+        lastFootstepTime = currentTime
+      }
+    } else {
+      // 이동 중이 아니면 타이머 리셋
+      lastFootstepTime = currentTime
+    }
+  }
+
+  requestAnimationFrame(footstepLoop)
+
+
     // 키보드 이벤트 핸들러
     window.addEventListener('keydown', (e) => {
       switch(e.key.toLowerCase()) {
@@ -401,7 +456,7 @@
     const collisionDistance = 0.5 // 충돌 허용 거리
 
     function updateCameraPosition() {
-      const baseSpeed= 0.01
+      const baseSpeed= 0.02
       const runSpeed=2
       const speed = moveState.run ? baseSpeed * runSpeed : baseSpeed;
       const dir = new THREE.Vector3()
@@ -500,7 +555,7 @@
     let isAnimating = false;
 
     window.addEventListener('mousedown', (e) => { //손전등 활, 비활성화
-      if (e.button === 0 && flashlightLight) { // 좌클릭 + 라이트 존재 시
+      if (e.button === 2 && flashlightLight) { // 좌클릭 + 라이트 존재 시
         flashlightOn = !flashlightOn
         flashlightLight.visible = flashlightOn
       }
