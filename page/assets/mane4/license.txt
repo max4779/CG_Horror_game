@@ -1,0 +1,11 @@
+Model Information:
+* title:	Porcelain Polly
+* source:	https://sketchfab.com/3d-models/porcelain-polly-9ef34eb03f0a42978b3a9d20f0f8f389
+* author:	archmage40 (https://sketchfab.com/archmage40)
+
+Model License:
+* license type:	CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)
+* requirements:	Author must be credited. Commercial use is allowed.
+
+If you use this 3D model in your project be sure to copy paste this credit wherever you share it:
+This work is based on "Porcelain Polly" (https://sketchfab.com/3d-models/porcelain-polly-9ef34eb03f0a42978b3a9d20f0f8f389) by archmage40 (https://sketchfab.com/archmage40) licensed under CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)

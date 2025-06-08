@@ -1,0 +1,8 @@
+Model Information:
+* title:	Spider Doll
+* source:	https://sketchfab.com/3d-models/spider-doll-505176300a3b49edafef4844d925f933
+* author:	Quella Designs (https://sketchfab.com/cypherqueen)
+
+Model License:
+* license type:	SKETCHFAB Standard (https://sketchfab.com/licenses)
+* requirements:	Under basic restrictions, use worldwide, on all types of media, commercially or not, and in all types of derivative works

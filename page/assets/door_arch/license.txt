@@ -1,0 +1,11 @@
+Model Information:
+* title:	Door Arch
+* source:	https://sketchfab.com/3d-models/door-arch-1f80f0b47a62484bb726ce5ecbb35741
+* author:	Kim Kaurin (https://sketchfab.com/kimkaurin)
+
+Model License:
+* license type:	CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)
+* requirements:	Author must be credited. Commercial use is allowed.
+
+If you use this 3D model in your project be sure to copy paste this credit wherever you share it:
+This work is based on "Door Arch" (https://sketchfab.com/3d-models/door-arch-1f80f0b47a62484bb726ce5ecbb35741) by Kim Kaurin (https://sketchfab.com/kimkaurin) licensed under CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)
