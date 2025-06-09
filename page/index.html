@@ -929,7 +929,7 @@
   let blinkIntervals = [];
 
   function createBlinkingLight(positionVector) {
-    const light = new THREE.PointLight(0xffaaaa, 0.5, 3);
+    const light = new THREE.PointLight(0xffaaffaa, 0.5, 3);
     light.position.copy(positionVector);
     scene.add(light);
     blinkingLights.push(light);
