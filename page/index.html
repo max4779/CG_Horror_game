@@ -244,7 +244,7 @@
     let dollFlag = false; 
     let doll2Flag = false
     let doll3Flag = false
-    let key2Flag = false; 
+    let key2Flag = true;  //디버그
     let doll2Moving = false;
     let doll2AnimId = null;
     let unlockFlag = false;
@@ -1716,28 +1716,53 @@
 
       // 6초 후 엔딩 텍스트 표시
       setTimeout(() => {
-      // 카메라 조작 OFF
-      if (controls) controls.enabled = false;
+        // 카메라 조작 OFF
+        if (controls) controls.enabled = false;
 
-      // Chapter Clear 텍스트 표시
-      const clearText = document.getElementById('clearText');
-      if (clearText) {
-        clearText.innerText = 'Chapter 1 Clear';
-        clearText.style.opacity = '1';
+        // Chapter Clear 텍스트 표시
+        const clearText = document.getElementById('clearText');
+        if (clearText) {
+          clearText.innerText = 'Chapter 1 Clear';
+          clearText.style.opacity = '1';
 
-        // 'Congratulation' 텍스트 추가
-        const congratsText = document.createElement('div');
-        congratsText.innerText = 'Congratulation';
-        congratsText.style.opacity = '0';  // 처음에는 보이지 않도록 설정
-        congratsText.style.transition = 'opacity 2s ease';  // 부드러운 페이드 인 효과
-        clearText.appendChild(congratsText);
+          // 'Congratulation' 텍스트 추가
+          const congratsText = document.createElement('div');
+          congratsText.innerText = 'Congratulation';
+          congratsText.style.opacity = '0';  // 처음에는 보이지 않도록 설정
+          congratsText.style.transition = 'opacity 2s ease';  // 부드러운 페이드 인 효과
+          clearText.appendChild(congratsText);
 
-        // 'Congratulation' 텍스트를 서서히 표시
-        setTimeout(() => {
-          congratsText.style.opacity = '1';
-        }, 100);  // 0.1초 후에 페이드 인 시작
-      }
-    }, 6000); // 페이드아웃 6초 후
+          // 'Congratulation' 텍스트를 서서히 표시
+          setTimeout(() => {
+            congratsText.style.opacity = '1';
+          }, 100);  // 0.1초 후에 페이드 인 시작
+          // 홈 버튼 추가
+          const homeButton = document.createElement('button');
+          homeButton.innerText = '홈으로';
+          homeButton.style.marginTop = '20px';
+          homeButton.style.padding = '10px 20px';
+          homeButton.style.fontSize = '16px';
+          homeButton.style.cursor = 'pointer';
+          homeButton.style.opacity = '0';
+          homeButton.style.transition = 'opacity 2s ease';
+          // 가운데 정렬을 위해 추가
+          homeButton.style.display = 'block';
+          homeButton.style.marginLeft = 'auto';
+          homeButton.style.marginRight = 'auto';
+
+          // 클릭 시 새로고침
+          homeButton.onclick = () => {
+            location.reload(); // F5 효과
+          };
+
+          clearText.appendChild(homeButton);
+
+          // 홈 버튼 페이드 인
+          setTimeout(() => {
+            homeButton.style.opacity = '1';
+          }, 1000);
+        }
+      }, 6000);
     }
 
 
