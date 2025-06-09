@@ -163,6 +163,50 @@
   </div> -->
 
 
+  <div id="instruction-overlay" style="
+    position: fixed;
+    top: 0; left: 0;
+    width: 100vw; height: 100vh;
+    background-color: black;
+    display: none;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    z-index: 9999;
+    font-family: 'Courier New', monospace;
+    padding: 30px;
+    text-align: center;
+  ">
+    <h1 style="font-size: 2.5rem; margin-bottom: 1rem; text-shadow: 0 0 10px crimson;">💀 조작 방법 💀</h1>
+
+    <p style="font-size: 1.1rem; margin-bottom: 2.5rem; color: #ff4444; text-shadow: 0 0 5px red;">
+      저주받은 인형을 찾으시오...
+    </p>
+
+    <div style="font-size: 1.2rem; line-height: 2;">
+      <p>WASD 이동</p>
+      <p>Shift 누른 채 이동: 달리기</p>
+      <p>E 키: 상호작용 <span style="font-size: 0.95rem;">(자막 출력되는 모델에 한해서)</span></p>
+      <p>마우스 우클릭: 손전등 켜기/끄기</p>
+    </div>
+
+    <button id="close-instruction" style="
+      padding: 10px 20px;
+      font-size: 1rem;
+      margin-top: 40px;
+      cursor: pointer;
+      border: none;
+      background: #8b0000;
+      color: white;
+      border-radius: 8px;
+      box-shadow: 0 0 10px red;
+      transition: background 0.3s;
+    ">닫기</button>
+  </div>
+
+
+
   <div class="map-box" id="map1">Map1</div>
   <div id="crosshair"></div> <!-- 가운데 점 -->
 
@@ -244,7 +288,7 @@
     let dollFlag = false; 
     let doll2Flag = false
     let doll3Flag = false
-    let key2Flag = true;  //디버그
+    let key2Flag = false;
     let doll2Moving = false;
     let doll2AnimId = null;
     let unlockFlag = false;
@@ -314,9 +358,6 @@
             </div>
           </div>
         `;
-        document.querySelector('#map1').addEventListener('click', () => loadMapModel(1));
-        document.querySelector('#map2').addEventListener('click', () => loadMapModel(2));
-        document.querySelector('#map3').addEventListener('click', () => loadMapModel(3));
       }
     }
 
@@ -758,7 +799,17 @@
         })
       }
 
-      document.querySelector('#map1').addEventListener('click', () => loadMapModel(1))
+      document.querySelector('#map1').addEventListener('click', () => {
+        // 조작법 오버레이 먼저 보여주기
+        document.getElementById('instruction-overlay').style.display = 'flex';
+
+        // "닫기" 버튼을 누르면 모델 로딩
+        const closeBtn = document.getElementById('close-instruction');
+        closeBtn.onclick = () => {
+          document.getElementById('instruction-overlay').style.display = 'none';
+          loadMapModel(1);  // 기존 모델 로딩 함수
+        };
+      });
       document.querySelector('#map2').addEventListener('click', () => loadMapModel(2))
       document.querySelector('#map3').addEventListener('click', () => loadMapModel(3))
     })
