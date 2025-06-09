@@ -444,6 +444,10 @@
             bgmAudio.pause();
             bgmAudio.currentTime = 0;
           }
+          const bgmToggleBtn = document.getElementById('bgm-toggle');
+          if (bgmToggleBtn) {
+            bgmToggleBtn.style.display = 'none';
+          }
           // crosshair 중복 생성 방지
           if (!document.getElementById('crosshair')) {
             let crosshair = document.createElement('div')
@@ -1467,7 +1471,7 @@
     }
 
     const target = movePath[moveIndex];
-    const speed = 0.015;
+    const speed = 0.018;
 
 
     if (mane4) {
@@ -1542,7 +1546,7 @@
 
   function updateCameraPosition() {
     const baseSpeed= 0.02
-    const runSpeed=1.5
+    const runSpeed=1.6
     const speed = moveState.run ? baseSpeed * runSpeed : baseSpeed;
     const dir = new THREE.Vector3()
     const right = new THREE.Vector3()
