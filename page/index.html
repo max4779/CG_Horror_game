@@ -386,24 +386,9 @@
         hidePauseMenu()
       })
 
-      document.getElementById('home-btn').addEventListener('click', () => { // 홈버튼
-        if(document.pointerLockElement){
-          document.exitPointerLock().catch((e)=>{
-            console.warn("PointerLock exit failed:", e.message)
-          })
-        }
-        hidePauseMenu()
-
-        scene.traverse(obj => {
-          if(obj.isMesh && obj !== playerMesh) {
-            scene.remove(obj)
-          }
-        })
-
-        // 오버레이가 없으면 새로 만들고, 있으면 display:flex만
-        const app = document.getElementById('app')
-        showOverlay();
-      })
+      document.getElementById('home-btn').addEventListener('click', () => {
+        location.reload(); // F5처럼 새로고침
+      });
 
 
       function disposeModel(model) {
