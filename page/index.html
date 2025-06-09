@@ -240,8 +240,8 @@
     let clearTriggered = false;
 
 
-    let keyFlag = false;
-    let dollFlag = false;
+    let keyFlag = false; 
+    let dollFlag = false; 
     let doll2Flag = false
     let doll3Flag = false
     let key2Flag = false; 
@@ -601,9 +601,17 @@
             mane4.scale.set(15, 15, 15);
             mane4.rotation.set(0, Math.PI / 2, 0);
             mane4.visible = true; // 숨김
+
+
+
+            const redLight = new THREE.PointLight(0xff0000, 1.5, 5); // 색상, 밝기, 범위
+            redLight.name = 'mane4RedLight';
+            redLight.visible = false;
+            mane4.add(redLight); // 마네킹에 부착
+
             scene.add(mane4);
 
-
+            
 
             // 애니메이션 준비
             mixer = new THREE.AnimationMixer(mane4);
@@ -1095,16 +1103,18 @@
       }
       
 
-      else if (currentTargeted.name === 'doll') { //인형 클릭시 이벤트
+      else if (currentTargeted.name === 'doll') { // 인형 클릭 시 이벤트
         audioSrc = '/assets/audio/girl_laugh.mp3';
-          // flashlight 비활성화
-        stopinput=true;
-        mane1.visible = true; 
-        mane2.visible = true; 
-        mane3.visible = true; 
-        mane5.visible = true; 
-        mane6.visible = true; 
-        mane7.visible = true; 
+
+        stopinput = true; // 입력 비활성화
+        stopMouseInput =true;
+        mane1.visible = true;
+        mane2.visible = true;
+        mane3.visible = true;
+        mane5.visible = true;
+        mane6.visible = true;
+        mane7.visible = true;
+
         if (flashlight) {
           flashlight.visible = false;
           camera.remove(flashlight);
@@ -1116,14 +1126,14 @@
         // 기존 카메라 백업
         const originalCamera = camera;
 
-        // 조명 변경
+        // 조명 추가
         const hemiLight = new THREE.HemisphereLight(0xffffff, 0x444444, 0.15);
         scene.add(hemiLight);
 
-        // 새 카메라 생성 및 교체
+        // 새 카메라 생성 및 고정 위치 설정
         const dollCam = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
         dollCam.position.set(27.586, 7.001, -16.1914);
-        camera = dollCam;
+        camera = dollCam; // 카메라 교체
 
         // 인형 이동 경로
         const path = [
@@ -1135,18 +1145,22 @@
         const moveSpeed = 0.04;
         let currentTargetPos = path[moveIndex];
 
-        function moveDoll() {
+        function moveDollWithCameraLook() {
           if (!doll) return;
 
           const direction = new THREE.Vector3().subVectors(currentTargetPos, doll.position).normalize();
           doll.lookAt(currentTargetPos);
           doll.position.addScaledVector(direction, moveSpeed);
 
+          // 고정된 카메라가 인형을 따라 시선만 회전
+          camera.lookAt(doll.position);
+
+          // 경로 끝까지 이동했는지 확인
           if (doll.position.distanceTo(currentTargetPos) < 0.1) {
             moveIndex++;
             if (moveIndex >= path.length) {
               setTimeout(() => {
-                // 카메라 복귀
+                // 카메라 원래대로 복구
                 camera = originalCamera;
 
                 // flashlight 복구
@@ -1160,26 +1174,26 @@
 
                 // 조명 제거
                 scene.remove(hemiLight);
-
-                // 여기서 input 활성화
-                stopinput = false;
-
+                stopMouseInput = false;
+                stopinput = false; // 입력 다시 활성화
               }, 800);
-              return; // 재귀 종료
+              return;
             }
             currentTargetPos = path[moveIndex];
           }
 
-          requestAnimationFrame(moveDoll);
+          requestAnimationFrame(moveDollWithCameraLook);
         }
 
-      setTimeout(() => {
-        currentTargetPos = path[moveIndex];
-        moveDoll();
-        startKeyGlow();  //열쇠 반짝이는 기능
-      }, 500);
-      dollFlag=true;
-    }
+        setTimeout(() => {
+          currentTargetPos = path[moveIndex];
+          moveDollWithCameraLook(); // 인형 이동 시작
+          startKeyGlow(); // 열쇠 반짝이기
+        }, 500);
+
+        dollFlag = true;
+      }
+
 
     else if(currentTargeted.name === 'doll2'){ //두번재 인형 클릭시 이벤트
       audioSrc = '/assets/audio/girl_laugh2.wav';
@@ -1269,6 +1283,9 @@
         key2Flag = true;
         audioSrc = '/assets/audio/acquire.wav';
         key2.visible = false;
+
+        const red = mane4.getObjectByName('mane4RedLight');
+        if (red) red.visible = true;
 
         createBlinkingLight(new THREE.Vector3(18.293 , 5.486, -17.501));
         createBlinkingLight(new THREE.Vector3(26.502, 5.554, -25.61));
@@ -1386,7 +1403,7 @@
       }, 300);
     }
 
-    else if (currentTargeted.name === 'doll4'){ //여기로와
+    else if (currentTargeted.name === 'doll4'){
 
       audioSrc = '/assets/audio/scream.mp3';
       createSunLikeLight(new THREE.Vector3(14.645, 5.33, -48.864));
@@ -1481,15 +1498,22 @@
 
     // 소리 재생 (이미 재생 중이면 재생하지 않음)
     if (!robot_walk_audio) {
-      robot_walk_audio = new Audio('/assets/audio/robot_walking.mp3');
-      robot_walk_audio.loop = true;
-      robot_walk_audio.play();
-    } else if (robot_walk_audio.paused) {
+      robot_walk_audio = new THREE.PositionalAudio(listener);
+      audioLoader.load('/assets/audio/robot_walking.mp3', (buffer) => {
+        robot_walk_audio.setBuffer(buffer);
+        robot_walk_audio.setRefDistance(5); // 거리 감쇠 시작 거리
+        robot_walk_audio.setLoop(true);
+        robot_walk_audio.setVolume(1.5);
+        robot_walk_audio.play();
+      });
+
+    mane4.add(robot_walk_audio); // 소리를 마네킹에 붙임
+    } else if (!robot_walk_audio.isPlaying) {
       robot_walk_audio.play();
     }
 
 
-    function step() {
+    function step() { 
       if (!mane4) return;
 
       const direction = new THREE.Vector3().subVectors(target, mane4.position);
@@ -1546,7 +1570,13 @@
 
   function updateCameraPosition() {
     const baseSpeed= 0.02
-    const runSpeed=1.6
+    let runSpeed =1.6
+    if(stopChap1){
+      runSpeed=2
+    }
+    else{
+      runSpeed=1.6
+    }
     const speed = moveState.run ? baseSpeed * runSpeed : baseSpeed;
     const dir = new THREE.Vector3()
     const right = new THREE.Vector3()
@@ -1669,61 +1699,61 @@
 
 
     function triggerClearEvent() {
-  if (clearTriggered) return;
-  clearTriggered = true;
-  lastFlag = true;
+      if (clearTriggered) return;
+      clearTriggered = true;
+      lastFlag = true;
 
-  // 페이드 아웃용 오버레이 스타일 설정
-  const fade = document.getElementById('fadeOverlay');
-  if (fade) {
-    fade.style.transition = 'opacity 6s ease';
-    fade.style.opacity = '1';  // 페이드 아웃 시작
-  }
+      // 페이드 아웃용 오버레이 스타일 설정
+      const fade = document.getElementById('fadeOverlay');
+      if (fade) {
+        fade.style.transition = 'opacity 6s ease';
+        fade.style.opacity = '1';  // 페이드 아웃 시작
+      }
 
-  // 엔딩 사운드 재생
-  const endingAudio = new Audio('/assets/audio/ending.mp3');
-  endingAudio.play().catch((e) => {
-    console.warn("Ending audio play failed:", e.message);
-  });
+      // 엔딩 사운드 재생
+      const endingAudio = new Audio('/assets/audio/ending.mp3');
+      endingAudio.play().catch((e) => {
+        console.warn("Ending audio play failed:", e.message);
+      });
 
-  // 포인터락 해제 (브라우저 호환 고려)
-  // 엔딩 중 pointerlockchange가 showPauseMenu를 호출하지 않도록 방지
-  ignoreNextPointerUnlock = true;
+      // 포인터락 해제 (브라우저 호환 고려)
+      // 엔딩 중 pointerlockchange가 showPauseMenu를 호출하지 않도록 방지
+      ignoreNextPointerUnlock = true;
 
-  try {
-    const exitResult = document.exitPointerLock?.();
-    if (exitResult instanceof Promise) {
-      exitResult.catch(e => console.warn("PointerLock exit failed:", e.message));
+      try {
+        const exitResult = document.exitPointerLock?.();
+        if (exitResult instanceof Promise) {
+          exitResult.catch(e => console.warn("PointerLock exit failed:", e.message));
+        }
+      } catch (e) {
+        console.warn("PointerLock exit threw an error:", e.message);
+      }
+
+      // 6초 후 엔딩 텍스트 표시
+      setTimeout(() => {
+      // 카메라 조작 OFF
+      if (controls) controls.enabled = false;
+
+      // Chapter Clear 텍스트 표시
+      const clearText = document.getElementById('clearText');
+      if (clearText) {
+        clearText.innerText = 'Chapter 1 Clear';
+        clearText.style.opacity = '1';
+
+        // 'Congratulation' 텍스트 추가
+        const congratsText = document.createElement('div');
+        congratsText.innerText = 'Congratulation';
+        congratsText.style.opacity = '0';  // 처음에는 보이지 않도록 설정
+        congratsText.style.transition = 'opacity 2s ease';  // 부드러운 페이드 인 효과
+        clearText.appendChild(congratsText);
+
+        // 'Congratulation' 텍스트를 서서히 표시
+        setTimeout(() => {
+          congratsText.style.opacity = '1';
+        }, 100);  // 0.1초 후에 페이드 인 시작
+      }
+    }, 6000); // 페이드아웃 6초 후
     }
-  } catch (e) {
-    console.warn("PointerLock exit threw an error:", e.message);
-  }
-
-  // 6초 후 엔딩 텍스트 표시
-  setTimeout(() => {
-  // 카메라 조작 OFF
-  if (controls) controls.enabled = false;
-
-  // Chapter Clear 텍스트 표시
-  const clearText = document.getElementById('clearText');
-  if (clearText) {
-    clearText.innerText = 'Chapter 1 Clear';
-    clearText.style.opacity = '1';
-
-    // 'Congratulation' 텍스트 추가
-    const congratsText = document.createElement('div');
-    congratsText.innerText = 'Congratulation';
-    congratsText.style.opacity = '0';  // 처음에는 보이지 않도록 설정
-    congratsText.style.transition = 'opacity 2s ease';  // 부드러운 페이드 인 효과
-    clearText.appendChild(congratsText);
-
-    // 'Congratulation' 텍스트를 서서히 표시
-    setTimeout(() => {
-      congratsText.style.opacity = '1';
-    }, 100);  // 0.1초 후에 페이드 인 시작
-  }
-}, 6000); // 페이드아웃 6초 후
-}
 
 
 
