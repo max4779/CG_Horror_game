@@ -1477,6 +1477,7 @@
             return;
           } else {
             // 최종 도착 후 종료
+            lastFlag=true;
             return;
           }
         }
@@ -1524,7 +1525,7 @@
     }
 
     const target = movePath[moveIndex];
-    const speed = 0.018;
+    const speed = 0.015;
 
 
     if (mane4) {
@@ -1737,7 +1738,6 @@
     function triggerClearEvent() {
       if (clearTriggered) return;
       clearTriggered = true;
-      lastFlag = true;
 
       // 페이드 아웃용 오버레이 스타일 설정
       const fade = document.getElementById('fadeOverlay');
@@ -1936,7 +1936,7 @@
         const delta = clock.getDelta();
         if (mixer && moveStarted) mixer.update(delta);
 
-        if (isInClearZone(camera.position) && !lastFlag) {
+        if (isInClearZone(camera.position) && lastFlag) {
           triggerClearEvent();
         }
 
