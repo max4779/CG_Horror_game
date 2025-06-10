@@ -288,6 +288,8 @@
     let dollFlag = false; 
     let doll2Flag = false
     let doll3Flag = false
+
+    let doll4Flag = false
     let key2Flag = false;
     let doll2Moving = false;
     let doll2AnimId = null;
@@ -1379,6 +1381,7 @@
     }
 
     else if (currentTargeted.name === 'doll3') {
+      doll4Flag=true;
       audioSrc = '/assets/audio/girl_laugh.mp3';
       stopAllBlinkingLights(); 
       createBlinkingLight(new THREE.Vector3(9.4, 4.714, -20.485));
@@ -1439,7 +1442,7 @@
       }, 300);
     }
 
-    else if (currentTargeted.name === 'doll4'){
+    else if (currentTargeted.name === 'doll4' && doll4Flag){
 
       audioSrc = '/assets/audio/scream.mp3';
       createSunLikeLight(new THREE.Vector3(14.645, 5.33, -48.864));
