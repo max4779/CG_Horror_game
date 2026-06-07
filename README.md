@@ -10,3 +10,9 @@
 3. npm install
 4. npm run dev
 
+
+# 게임 플레이
+![메인이미지](https://github.com/max4779/CG_Horror_game/blob/main/screenshot/main.png)
+
+![조작법](https://github.com/max4779/CG_Horror_game/blob/main/screenshot/control.png)
+![플레이화면](https://github.com/max4779/CG_Horror_game/blob/main/screenshot/play1.png)
