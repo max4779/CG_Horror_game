@@ -356,7 +356,7 @@
       } else {
         const app = document.getElementById('app');
         app.innerHTML += `
-          <div id="overlay" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: url('/assets/images/main_img.png') no-repeat center center; background-size: cover;">
+          <div id="overlay" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: url('./assets/images/main_img.png') no-repeat center center; background-size: cover;">
             <h1 style="position: absolute; bottom: 25%; left: 50%; transform: translateX(-50%); color: white; font-size: 36px; text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.6);">원하는 맵을 고르세요</h1>
             <div class="map-buttons" style="position: absolute; bottom: 20%; left: 50%; transform: translateX(-50%); display: flex; justify-content: space-around; width: 50%;">
               <div class="map-box" id="map1" style="width: 80px; height: 80px; background-color: rgba(0, 0, 0, 0.5); color: white; display: flex; align-items: center; justify-content: center; border-radius: 8px; cursor: pointer;">Map 1</div>
@@ -371,7 +371,7 @@
     // DOM이 로드된 후 실행
     document.addEventListener('DOMContentLoaded', () => {
       // 오버레이 삽입
-      bgmAudio = new Audio('/assets/audio/lobbyBGM.mp3');
+      bgmAudio = new Audio('./assets/audio/lobbyBGM.mp3');
       bgmAudio.loop = true;
       bgmAudio.volume = 1;
 
@@ -418,12 +418,12 @@
         <div id="overlay">
           <h1>원하는 맵을 고르세요</h1>
           <div class="image-container">
-            <img id="main-image" src="/assets/img/main_img.png" alt="Main Image">
+            <img id="main-image" src="./assets/img/main_img.png" alt="Main Image">
           </div>
           <div class="map-buttons">
             <div class="map-box" id="map1"><span>Map1</span></div>
-            <img class="map-box" id="map2" src="/assets/img/chained_image.jpg" alt="Map 2">
-            <img class="map-box" id="map3" src="/assets/img/chained_image.jpg" alt="Map 3">
+            <img class="map-box" id="map2" src="./assets/img/chained_image.jpg" alt="Map 2">
+            <img class="map-box" id="map3" src="./assets/img/chained_image.jpg" alt="Map 3">
           </div>
         </div>
       `;
@@ -494,7 +494,7 @@
           document.body.requestPointerLock() //모델로딩
 
           gltfloader.load(
-            '/assets/housegltf/scene.gltf', // 또는 .gltf 경로
+            './assets/housegltf/scene.gltf', // 또는 .gltf 경로
             gltf=>{
               scene.add(gltf.scene)
               createInteractBox('Door1', new THREE.Vector3(21.919, 5.448, -8.036), new THREE.Vector3(0.11574, 0.60377, 0.53104), new THREE.Euler(0, Math.PI / 2, 0)); //이름, 위치, 사이즈, 회전
@@ -541,7 +541,7 @@
             }
           );
           // 인형 로드
-          gltfloader.load('/assets/doll/scene.gltf', (gltf) => { //인형 생성
+          gltfloader.load('./assets/doll/scene.gltf', (gltf) => { //인형 생성
             doll = gltf.scene;
             doll.position.set(27.592, 4.656, -21.177); // 인형 위치 지정 (예: x=5, y=0, z=0)
             doll.scale.set(0.2, 0.2, 0.2)
@@ -550,7 +550,7 @@
             createInteractBox('doll2', new THREE.Vector3(14.516, 4.639, -18.745), new THREE.Vector3(1, 1, 1)); //인형 상호작용 박스
           });
 
-          gltfloader.load('/assets/doll/scene.gltf', (gltf) => { //인형 생성
+          gltfloader.load('./assets/doll/scene.gltf', (gltf) => { //인형 생성
             doll_1 = gltf.scene;
             doll_1.position.set(39.441, 4.2, -53.5); // 인형 위치 지정 (예: x=5, y=0, z=0)
             doll_1.scale.set(0.2, 0.2, 0.2)
@@ -560,7 +560,7 @@
             createInteractBox('doll4', new THREE.Vector3(9.4, 5.5, -20.485), new THREE.Vector3(1, 1, 1)); //인형 상호작용 박스
           });
 
-          gltfloader.load('/assets/key1/scene.gltf', (gltf) => { // 방문 얄쇠 생성
+          gltfloader.load('./assets/key1/scene.gltf', (gltf) => { // 방문 얄쇠 생성
             key = gltf.scene;
             key.position.set(21.998, 5.5, -25); 
             key.scale.set(0.01, 0.01, 0.01);
@@ -577,7 +577,7 @@
           });   
 
 
-          gltfloader.load('/assets/key2/scene.gltf', (gltf) => { // 열쇠 생성
+          gltfloader.load('./assets/key2/scene.gltf', (gltf) => { // 열쇠 생성
             key2 = gltf.scene;
             key2.position.set(14.516, 4.639, -18.745); 
             key2.scale.set(0.0004, 0.0004, 0.0004);
@@ -594,7 +594,7 @@
 
 
           //마네킹1
-          gltfloader.load('/assets/mane1/scene.gltf', (gltf) => { //2번 벽면 마네킹
+          gltfloader.load('./assets/mane1/scene.gltf', (gltf) => { //2번 벽면 마네킹
             mane1 = gltf.scene;
             mane1.name = 'mane1';
             mane1.position.set(31.315, 5.5, -11.053);
@@ -605,7 +605,7 @@
           });
 
           // 마네킹 2
-          gltfloader.load('/assets/mane1/scene.gltf', (gltf) => { //인형근처 문밖
+          gltfloader.load('./assets/mane1/scene.gltf', (gltf) => { //인형근처 문밖
             mane2 = gltf.scene;
             mane2.name = 'mane2';
             mane2.position.set(31.404, 5.5, -20.247);
@@ -616,7 +616,7 @@
           });
 
           // 마네킹 3
-          gltfloader.load('/assets/mane1/scene.gltf', (gltf) => { //출구쪽 문안 마네킹
+          gltfloader.load('./assets/mane1/scene.gltf', (gltf) => { //출구쪽 문안 마네킹
             mane3 = gltf.scene; 
             mane3.name = 'mane3';
             mane3.position.set(27.657, 5.5, -25.434);
@@ -627,7 +627,7 @@
           });
 
           // 마네킹 4
-          gltfloader.load('/assets/mane3/mane3_ani.glb', (gltf) => {  // 초기위치 마네킹
+          gltfloader.load('./assets/mane3/mane3_ani.glb', (gltf) => {  // 초기위치 마네킹
             mane4 = gltf.scene;
             mane4.name = 'mane4';
             mane4.position.set(19.529, 4.5, -9.363);
@@ -661,7 +661,7 @@
           });
 
           // 마네킹 5
-          gltfloader.load('/assets/mane2/scene.gltf', (gltf) => { //2번 벽면 마네킹
+          gltfloader.load('./assets/mane2/scene.gltf', (gltf) => { //2번 벽면 마네킹
             mane5 = gltf.scene;
             mane5.name = 'mane5';
             mane5.position.set(31.315, 5.5, -9.213);
@@ -672,7 +672,7 @@
           });
 
           // 마네킹 6
-          gltfloader.load('/assets/mane2/scene.gltf', (gltf) => { //1번 벽면 마네킹
+          gltfloader.load('./assets/mane2/scene.gltf', (gltf) => { //1번 벽면 마네킹
             mane6 = gltf.scene;
             mane6.name = 'mane6';
             mane6.position.set(29.718, 5.5, -7.597);
@@ -683,7 +683,7 @@
           });
 
           // 마네킹 7
-          gltfloader.load('/assets/mane2/scene.gltf', (gltf) => { //1번 벽면 마네킹
+          gltfloader.load('./assets/mane2/scene.gltf', (gltf) => { //1번 벽면 마네킹
             mane7 = gltf.scene;
             mane7.name = 'mane7';
             mane7.position.set(27.889, 5.5, -7.597);
@@ -695,7 +695,7 @@
 
 
           // 마네킹 8
-          gltfloader.load('/assets/mane2/scene.gltf', (gltf) => {
+          gltfloader.load('./assets/mane2/scene.gltf', (gltf) => {
             mane8 = gltf.scene;
             mane8.name = 'mane8';
             mane8.position.set(25.253,  5.5, -24.169);
@@ -705,7 +705,7 @@
           });
 
           // 마네킹 9
-          gltfloader.load('/assets/mane4/scene.gltf', (gltf) => {
+          gltfloader.load('./assets/mane4/scene.gltf', (gltf) => {
             mane9 = gltf.scene;
             mane9.name = 'mane9';
             mane9.position.set(12.0,  3.8, -18.268);
@@ -716,7 +716,7 @@
 
 
           // 인형2
-          gltfloader.load('/assets/mane4/scene.gltf', (gltf) => { //책상위 인형
+          gltfloader.load('./assets/mane4/scene.gltf', (gltf) => { //책상위 인형
             doll2 = gltf.scene;
             doll2.name = 'doll2';
             doll2.position.set(30.121,  5, -17.26);
@@ -727,7 +727,7 @@
          
 
           //테이블
-          gltfloader.load('/assets/table/scene.gltf', (gltf) => {
+          gltfloader.load('./assets/table/scene.gltf', (gltf) => {
             table = gltf.scene;
             table.name = 'table';
             table.position.set(30, 4.5, -17.26);
@@ -746,7 +746,7 @@
 
           
           // 출구
-          gltfloader.load('/assets/door_arch/scene.gltf', (gltf) => { 
+          gltfloader.load('./assets/door_arch/scene.gltf', (gltf) => { 
             exitDoor = gltf.scene; 
             exitDoor.name = 'exitDoor';
             exitDoor.position.set(14.645,4.284, -48.561);
@@ -787,7 +787,7 @@
         }
 
 
-        gltfloader.load('/assets/flashlight/flashlight.gltf', (gltf) => { //손전등 생성
+        gltfloader.load('./assets/flashlight/flashlight.gltf', (gltf) => { //손전등 생성
           flashlight = gltf.scene
           flashlight.scale.set(0.003, 0.003, 0.003) // 크기 조절
           flashlight.position.set(0.3, -0.5, -0.25) // 카메라 기준 위치 (손전등 위치)
@@ -943,9 +943,9 @@
     let footstepDelay = 1000  // ms
     let footstepIndex = 0
     const footstepSounds = [
-    new Audio('/assets/audio/step1.mp3'),
-    new Audio('/assets/audio/step2.mp3'),
-    new Audio('/assets/audio/step3.mp3')
+    new Audio('./assets/audio/step1.mp3'),
+    new Audio('./assets/audio/step2.mp3'),
+    new Audio('./assets/audio/step3.mp3')
   ]
 
   function playFootstepSound() {
@@ -1080,15 +1080,15 @@
       // 이미 재생 중이면 중복 재생 방지
       if (currentAudio && currentAudio.isPlaying) return;
 
-      let audioSrc = '/assets/audio/lockedDoor.mp3';
+      let audioSrc = './assets/audio/lockedDoor.mp3';
 
       if (currentTargeted.name === 'Door5') {
         if(!key2Flag){
-          audioSrc='/assets/audio/unlockDoor.mp3';
+          audioSrc='./assets/audio/unlockDoor.mp3';
         }
         else{
           stopChap1=true;
-          audioSrc='/assets/audio/doorOpen.wav';
+          audioSrc='./assets/audio/doorOpen.wav';
           camera.position.set(26.508, 6, -26.801)
           light.intensity = 0.1;
           
@@ -1101,11 +1101,11 @@
       } 
       else if (currentTargeted.name === 'Door7') {
         if(keyFlag && dollFlag &&(!unlockFlag)){
-          audioSrc='/assets/audio/unlockDoor.mp3';
+          audioSrc='./assets/audio/unlockDoor.mp3';
           unlockFlag=true;
         }
         else if(unlockFlag){
-          audioSrc='/assets/audio/doorOpen.wav';
+          audioSrc='./assets/audio/doorOpen.wav';
            // 1초 뒤 특정 위치로 이동
             // 예: x=10, y=5, z=-3 위치로 이동
           camera.position.set(17.975, 6, -17.501);
@@ -1118,7 +1118,7 @@
             const sound = new THREE.PositionalAudio(listener);
             const audioLoader = new THREE.AudioLoader();
             
-            audioLoader.load('/assets/audio/glass_crash.mp3', (buffer) => {
+            audioLoader.load('./assets/audio/glass_crash.mp3', (buffer) => {
               sound.setBuffer(buffer);
               sound.setRefDistance(5); // 거리 기반 볼륨 감쇠
               sound.setVolume(5);      // 볼륨 설정
@@ -1132,13 +1132,13 @@
           }, 1000);
         } 
         else{
-          audioSrc = '/assets/audio/ForcedOpenDoor.mp3';
+          audioSrc = './assets/audio/ForcedOpenDoor.mp3';
         }
         
       }
 
       else if(currentTargeted.name==='key'){
-        audioSrc = '/assets/audio/acquire.wav';
+        audioSrc = './assets/audio/acquire.wav';
         key.visible = false;
 
         // (선택) 이후 처리 예: 열쇠 획득 상태 플래그 설정
@@ -1147,7 +1147,7 @@
       
 
       else if (currentTargeted.name === 'doll') { // 인형 클릭 시 이벤트
-        audioSrc = '/assets/audio/girl_laugh.mp3';
+        audioSrc = './assets/audio/girl_laugh.mp3';
 
         stopinput = true; // 입력 비활성화
         stopMouseInput =true;
@@ -1239,7 +1239,7 @@
 
 
     else if(currentTargeted.name === 'doll2'){ //두번재 인형 클릭시 이벤트
-      audioSrc = '/assets/audio/girl_laugh2.wav';
+      audioSrc = './assets/audio/girl_laugh2.wav';
       if(!doll2Moving){
         doll2Moving = true;
         doll2Flag=true;
@@ -1261,7 +1261,7 @@
             mane9.position.x += moveSpeed;
             if(mane9.position.x >= frontX){
               mane9.position.x = frontX;
-              const crashAudio = new Audio('/assets/audio/window_hit.mp3');
+              const crashAudio = new Audio('./assets/audio/window_hit.mp3');
               crashAudio.play();
               movingBack = true;
             }
@@ -1324,7 +1324,7 @@
       }
       else {
         key2Flag = true;
-        audioSrc = '/assets/audio/acquire.wav';
+        audioSrc = './assets/audio/acquire.wav';
         key2.visible = false;
 
         const red = mane4.getObjectByName('mane4RedLight');
@@ -1336,7 +1336,7 @@
     }
 
     else if (currentTargeted.name === 'DoorOut'){
-      audioSrc='/assets/audio/doorOpen.wav';
+      audioSrc='./assets/audio/doorOpen.wav';
 
       camera.position.set(19, 6, -17.32);
       camera.rotation.set(
@@ -1387,7 +1387,7 @@
 
     else if (currentTargeted.name === 'doll3') {
       doll4Flag=true;
-      audioSrc = '/assets/audio/girl_laugh.mp3';
+      audioSrc = './assets/audio/girl_laugh.mp3';
       stopAllBlinkingLights(); 
       createBlinkingLight(new THREE.Vector3(9.4, 4.714, -20.485));
 
@@ -1449,7 +1449,7 @@
 
     else if (currentTargeted.name === 'doll4' && doll4Flag){
 
-      audioSrc = '/assets/audio/scream.mp3';
+      audioSrc = './assets/audio/scream.mp3';
       createSunLikeLight(new THREE.Vector3(14.645, 5.33, -48.864));
 
       // 이동 타겟
@@ -1544,7 +1544,7 @@
     // 소리 재생 (이미 재생 중이면 재생하지 않음)
     if (!robot_walk_audio) {
       robot_walk_audio = new THREE.PositionalAudio(listener);
-      audioLoader.load('/assets/audio/robot_walking.mp3', (buffer) => {
+      audioLoader.load('./assets/audio/robot_walking.mp3', (buffer) => {
         robot_walk_audio.setBuffer(buffer);
         robot_walk_audio.setRefDistance(5); // 거리 감쇠 시작 거리
         robot_walk_audio.setLoop(true);
@@ -1755,7 +1755,7 @@
       }
 
       // 엔딩 사운드 재생
-      const endingAudio = new Audio('/assets/audio/ending.mp3');
+      const endingAudio = new Audio('./assets/audio/ending.mp3');
       endingAudio.play().catch((e) => {
         console.warn("Ending audio play failed:", e.message);
       });
