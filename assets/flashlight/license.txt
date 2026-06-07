@@ -1,0 +1,11 @@
+Model Information:
+* title:	Flash Light
+* source:	https://sketchfab.com/3d-models/flash-light-410f25b2f1774b63a4fd596b4f19dee2
+* author:	IUPUI University Library (https://sketchfab.com/iupuiul)
+
+Model License:
+* license type:	CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)
+* requirements:	Author must be credited. Commercial use is allowed.
+
+If you use this 3D model in your project be sure to copy paste this credit wherever you share it:
+This work is based on "Flash Light" (https://sketchfab.com/3d-models/flash-light-410f25b2f1774b63a4fd596b4f19dee2) by IUPUI University Library (https://sketchfab.com/iupuiul) licensed under CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)
