@@ -237,17 +237,11 @@
   <div id="interaction-hint">E를 눌러 상호작용</div>
 
   <script type="module">
-    // import * as THREE from 'three'
-    // import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader'
-    // import { OBJLoader } from 'three/examples/jsm/loaders/OBJLoader.js'
-    // import { MTLLoader } from 'three/examples/jsm/loaders/MTLLoader.js'
-    // import * as CANNON from 'https://cdn.skypack.dev/cannon-es'
-    // import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
-    import * as THREE from 'https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js'
-    import { GLTFLoader } from 'https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/loaders/GLTFLoader.js'
-    import { OBJLoader } from 'https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/loaders/OBJLoader.js'
-    import { MTLLoader } from 'https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/loaders/MTLLoader.js'
-    import { OrbitControls } from 'https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/controls/OrbitControls.js'
+    import * as THREE from 'https://esm.sh/three@0.160.0'
+    import { GLTFLoader } from 'https://esm.sh/three@0.160.0/examples/jsm/loaders/GLTFLoader.js'
+    import { OBJLoader } from 'https://esm.sh/three@0.160.0/examples/jsm/loaders/OBJLoader.js'
+    import { MTLLoader } from 'https://esm.sh/three@0.160.0/examples/jsm/loaders/MTLLoader.js'
+    import { OrbitControls } from 'https://esm.sh/three@0.160.0/examples/jsm/controls/OrbitControls.js'
     import * as CANNON from 'https://esm.sh/cannon-es@0.20.0'
 
     // Three.js 기본 설정
@@ -1615,8 +1609,8 @@
   const collisionDistance = 0.5 // 충돌 허용 거리
 
   function updateCameraPosition() {
-    const baseSpeed= 0.02
-    let runSpeed =1.6
+    const baseSpeed= 0.05 //기존 0.02
+    let runSpeed =1.6 //기존 1.6
     if(stopChap1){
       runSpeed=2
     }
