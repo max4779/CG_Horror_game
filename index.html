@@ -1609,13 +1609,13 @@
   const collisionDistance = 0.5 // 충돌 허용 거리
 
   function updateCameraPosition() {
-    const baseSpeed= 0.02
-    let runSpeed =1.6
+    const baseSpeed= 3 //기존 0.02
+    let runSpeed =4.5 //기존 1.6
     if(stopChap1){
       runSpeed=2
     }
     else{
-      runSpeed=1.6
+      runSpeed=4.5
     }
     const speed = moveState.run ? baseSpeed * runSpeed : baseSpeed;
     const dir = new THREE.Vector3()
